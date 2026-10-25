@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday, Kashaf</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,500;1,9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-1:#050b16;
+    --bg-2:#0a1a2e;
+    --aurora-a:#3ddc97;
+    --aurora-b:#4cc9f0;
+    --aurora-c:#7b61ff;
+    --lantern:#ffb454;
+    --cream:#f5f1e6;
+    --cream-dim:rgba(245,241,230,0.62);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg-1);
+    color:var(--cream);
+    font-family:'Inter',sans-serif;
+    overflow-x:hidden;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+
+  /* ---------- STARFIELD (behind everything) ---------- */
+  #starfield{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+  }
+  .star{
+    position:absolute; border-radius:50%; background:#fff;
+    animation:twinkle ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%,100%{opacity:0.25;}
+    50%{opacity:1;}
+  }
+
+  /* ---------- AURORA BACKGROUND (real reference photo) ---------- */
+  .aurora-layer{
+    position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none;
+    background:url('aurora-bg.jpg') center center / cover no-repeat, var(--bg-1);
+  }
+  .aurora-layer::after{
+    content:'';
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(5,11,22,0.15) 0%, rgba(5,11,22,0.05) 40%, rgba(5,11,22,0.55) 100%);
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:28px 40px;
+  }
+  .brand{
+    font-family:'Fraunces',serif; font-weight:600; font-style:italic;
+    font-size:1.15rem; letter-spacing:0.02em; color:var(--cream);
+  }
+  .music-btn{
+    display:flex; align-items:center; gap:8px;
+    background:rgba(245,241,230,0.1);
+    border:1px solid rgba(245,241,230,0.25);
+    color:var(--cream);
+    padding:10px 20px; border-radius:999px;
+    font-size:0.85rem; font-family:'Inter',sans-serif; font-weight:500;
+    cursor:pointer; backdrop-filter:blur(8px);
+    transition:background 0.25s ease, transform 0.2s ease;
+  }
+  .music-btn:hover{background:rgba(245,241,230,0.18); transform:translateY(-1px);}
+  .music-btn:focus-visible{outline:2px solid var(--aurora-b); outline-offset:3px;}
+  .music-dot{ width:8px; height:8px; border-radius:50%; background:var(--aurora-a); }
+  .music-dot.playing{animation:pulse-dot 1s ease-in-out infinite;}
+  @keyframes pulse-dot{
+    0%,100%{opacity:1; transform:scale(1);}
+    50%{opacity:0.4; transform:scale(0.7);}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative; z-index:1;
+    height:100vh; min-height:640px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    overflow:hidden;
+    padding:0 24px;
+  }
+  #confetti-canvas{ position:fixed; inset:0; pointer-events:none; z-index:40; }
+
+  /* paper lanterns rising */
+  .lantern{
+    position:absolute;
+    bottom:-160px;
+    width:44px; height:58px;
+    border-radius:10px 10px 16px 16px;
+    opacity:0.92;
+    animation:float-up linear infinite;
+    filter:drop-shadow(0 0 14px var(--lantern));
+  }
+  .lantern .body, .swarm-lantern .body{
+    position:absolute; inset:0;
+    background:radial-gradient(circle at 50% 60%, #fff3c9, var(--lantern) 55%, #d97b2c 90%);
+    border-radius:10px 10px 16px 16px;
+    border:1px solid rgba(255,255,255,0.25);
+  }
+  .lantern .rim-top, .lantern .rim-bottom, .swarm-lantern .rim-top, .swarm-lantern .rim-bottom{
+    position:absolute; left:50%; width:30px; height:4px;
+    background:rgba(120,70,20,0.55); border-radius:2px;
+    transform:translateX(-50%);
+  }
+  .lantern .rim-top, .swarm-lantern .rim-top{ top:-2px; }
+  .lantern .rim-bottom, .swarm-lantern .rim-bottom{ bottom:-2px; }
+  @keyframes float-up{
+    0%{ transform:translateY(0) translateX(0) rotate(-3deg); }
+    50%{ transform:translateY(-58vh) translateX(26px) rotate(3deg); }
+    100%{ transform:translateY(-125vh) translateX(-14px) rotate(-2deg); }
+  }
+  .swarm-lantern{
+    position:fixed;
+    bottom:-80px;
+    width:44px; height:58px;
+    border-radius:10px 10px 16px 16px;
+    filter:drop-shadow(0 0 14px var(--lantern));
+    animation:swarm-rise ease-in-out forwards;
+    z-index:35;
+    pointer-events:none;
+  }
+  @keyframes swarm-rise{
+    0%{ transform:translateY(0) translateX(0) rotate(-3deg) scale(var(--lanternScale,1)); opacity:0; }
+    4%{ opacity:1; }
+    20%{ transform:translateY(-20vh) translateX(var(--driftA,20px)) rotate(3deg) scale(var(--lanternScale,1)); }
+    45%{ transform:translateY(-46vh) translateX(var(--driftB,-18px)) rotate(-3deg) scale(var(--lanternScale,1)); }
+    70%{ transform:translateY(-74vh) translateX(var(--driftC,24px)) rotate(4deg) scale(var(--lanternScale,1)); }
+    92%{ opacity:1; }
+    100%{ transform:translateY(-128vh) translateX(var(--driftD,12px)) rotate(-2deg) scale(var(--lanternScale,1)); opacity:0; }
+  }
+  .lead-lantern{
+    position:relative; width:56px; height:74px;
+    border-radius:12px 12px 20px 20px;
+    background:radial-gradient(circle at 50% 60%, #fff3c9, var(--lantern) 55%, #d97b2c 90%);
+    border:1px solid rgba(255,255,255,0.3);
+    box-shadow:0 0 26px 7px rgba(255,180,84,0.5);
+    animation:lead-bob 2.6s ease-in-out infinite;
+  }
+  @keyframes lead-bob{
+    0%,100%{ transform:translateY(0) rotate(-2deg); }
+    50%{ transform:translateY(-8px) rotate(2deg); }
+  }
+  .lead-lantern.launched{
+    animation:lead-launch 3.2s cubic-bezier(.22,.7,.35,1) forwards;
+  }
+  @keyframes lead-launch{
+    0%{ transform:translateY(0) translateX(0) rotate(0deg) scale(1); opacity:1; }
+    60%{ transform:translateY(-55vh) translateX(20px) rotate(4deg) scale(0.85); opacity:1; }
+    100%{ transform:translateY(-105vh) translateX(45px) rotate(9deg) scale(0.4); opacity:0; }
+  }
+  .lead-lantern .rim-top, .lead-lantern .rim-bottom{
+    position:absolute; left:50%; width:26px; height:4px;
+    background:rgba(120,70,20,0.55); border-radius:2px;
+    transform:translateX(-50%);
+  }
+  .lead-lantern .rim-top{ top:-2px; }
+  .lead-lantern .rim-bottom{ bottom:-2px; }
+
+  .eyebrow{
+    font-size:0.95rem; color:var(--cream-dim);
+    font-style:italic; font-family:'Fraunces',serif; font-weight:500;
+    margin-bottom:18px; opacity:0; animation:rise 0.9s ease forwards 0.2s;
+  }
+  h1.headline{
+    font-family:'Fraunces',serif; font-weight:700;
+    font-size:clamp(2.8rem, 8vw, 6.2rem);
+    line-height:1.02; letter-spacing:-0.01em;
+    color:var(--cream);
+    opacity:0; animation:rise 1s ease forwards 0.4s;
+  }
+  h1.headline .accent{
+    background:linear-gradient(90deg, var(--aurora-a), var(--aurora-b) 55%, var(--aurora-c));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    font-style:italic; font-weight:500;
+  }
+  .sub{
+    max-width:520px; margin:26px auto 0;
+    font-size:1.05rem; line-height:1.6; color:var(--cream-dim);
+    opacity:0; animation:rise 1s ease forwards 0.65s;
+  }
+  @keyframes rise{
+    from{opacity:0; transform:translateY(22px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .scroll-cue{
+    position:absolute; bottom:38px; left:50%; transform:translateX(-50%);
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    color:var(--cream-dim); font-size:0.8rem;
+    opacity:0; animation:rise 1s ease forwards 1s;
+  }
+  .chevron{
+    width:14px; height:14px; border-right:2px solid var(--cream-dim); border-bottom:2px solid var(--cream-dim);
+    transform:rotate(45deg);
+    animation:bounce-chevron 1.6s ease-in-out infinite;
+  }
+  @keyframes bounce-chevron{
+    0%,100%{transform:rotate(45deg) translate(0,0);}
+    50%{transform:rotate(45deg) translate(6px,6px);}
+  }
+
+  /* ---------- SECTION SHARED ---------- */
+  section{position:relative; z-index:1; padding:120px 24px;}
+  .section-head{text-align:center; max-width:640px; margin:0 auto 64px;}
+  .section-head h2{
+    font-family:'Fraunces',serif; font-weight:600;
+    font-size:clamp(2rem, 4.5vw, 3.2rem);
+    margin-bottom:14px;
+  }
+  .section-head p{color:var(--cream-dim); font-size:1rem; line-height:1.6;}
+
+  /* ---------- GALLERY (3D coverflow) ---------- */
+  .gallery-wrap{
+    position:relative; height:420px;
+    display:flex; align-items:center; justify-content:center;
+    perspective:1400px; user-select:none;
+  }
+  .gallery-track{
+    position:relative; width:100%; height:100%;
+    transform-style:preserve-3d;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .card{
+    position:absolute; width:230px; height:300px; border-radius:18px;
+    display:flex; align-items:flex-end; padding:20px;
+    background:linear-gradient(150deg, var(--card-a), var(--card-b));
+    box-shadow:0 30px 60px rgba(0,0,0,0.5);
+    transition:transform 0.6s cubic-bezier(.22,.9,.32,1), opacity 0.6s ease, filter 0.6s ease;
+    cursor:grab; border:1px solid rgba(255,255,255,0.08);
+  }
+  .card:active{cursor:grabbing;}
+  .card .cap{ font-family:'Fraunces',serif; font-style:italic; font-weight:500; color:rgba(255,255,255,0.92); font-size:1.05rem; }
+  .card .icon{ position:absolute; top:20px; left:20px; font-size:1.4rem; opacity:0.85; }
+  .gallery-nav{ margin-top:36px; display:flex; justify-content:center; gap:14px; }
+  .gnav-btn{
+    width:42px; height:42px; border-radius:50%;
+    border:1px solid rgba(245,241,230,0.25);
+    background:rgba(245,241,230,0.06);
+    color:var(--cream); font-size:1rem;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background 0.2s ease;
+  }
+  .gnav-btn:hover{background:rgba(245,241,230,0.16);}
+  .gnav-btn:focus-visible{outline:2px solid var(--aurora-b); outline-offset:2px;}
+  .gallery-hint{ text-align:center; margin-top:14px; font-size:0.82rem; color:var(--cream-dim); }
+
+  /* ---------- ADVENTURE SECTION ---------- */
+  .adventure-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:22px;
+    max-width:1100px; margin:0 auto;
+  }
+  .adv-card{
+    position:relative; border-radius:18px; overflow:hidden;
+    aspect-ratio:3/4; background:#0a1626;
+    border:1px solid rgba(255,255,255,0.08);
+    box-shadow:0 24px 50px rgba(0,0,0,0.45);
+  }
+  .adv-card video, .adv-card .adv-poster{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; display:block;
+  }
+  .adv-card .adv-poster{ transition:opacity 0.5s ease; }
+  .adv-card.playing .adv-poster{ opacity:0; }
+  .adv-card::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(5,11,22,0) 40%, rgba(5,11,22,0.88) 100%);
+    pointer-events:none;
+  }
+  .adv-card .adv-label{
+    position:absolute; left:18px; right:18px; bottom:16px; z-index:2;
+  }
+  .adv-card .adv-place{
+    font-family:'Fraunces',serif; font-style:italic; font-weight:500;
+    font-size:1.15rem; color:var(--cream);
+  }
+  .adv-card .adv-country{
+    font-size:0.78rem; color:var(--cream-dim); margin-top:2px;
+  }
+  .adventure-prompt{
+    text-align:center; margin:0 auto 46px; max-width:520px;
+    font-family:'Fraunces',serif; font-style:italic; font-weight:500;
+    font-size:clamp(1.15rem, 2.4vw, 1.4rem); color:var(--cream-dim);
+  }
+  @media (max-width:760px){
+    .adventure-grid{ grid-template-columns:1fr; gap:16px; }
+    .adv-card{ aspect-ratio:16/10; }
+  }
+
+  /* ---------- WISH LANTERN SECTION ---------- */
+  .wish-section{ text-align:center; }
+  .lantern-area{ display:flex; flex-direction:column; align-items:center; gap:28px; }
+  .release-btn{
+    background:none; border:1px solid rgba(245,241,230,0.3);
+    color:var(--cream); padding:12px 26px; border-radius:999px;
+    font-family:'Inter',sans-serif; font-size:0.9rem; font-weight:500;
+    cursor:pointer; transition:background 0.2s ease, transform 0.2s ease;
+  }
+  .release-btn:hover{background:rgba(245,241,230,0.1); transform:translateY(-1px);}
+  .release-btn:disabled{opacity:0.35; cursor:default; transform:none;}
+  .wish-message{
+    max-width:560px; margin:12px auto 0;
+    font-family:'Fraunces',serif; font-weight:500; font-style:italic;
+    font-size:clamp(1.2rem, 2.6vw, 1.6rem);
+    line-height:1.55; color:var(--cream);
+    opacity:0; transform:translateY(16px);
+    transition:opacity 0.9s ease, transform 0.9s ease;
+  }
+  .wish-message.show{opacity:1; transform:translateY(0);}
+  .wish-message .sign{
+    display:block; margin-top:20px; font-size:1rem; font-style:normal;
+    color:var(--cream-dim); font-family:'Inter',sans-serif;
+  }
+
+  /* ---------- WISH WALL ---------- */
+  .wishwall-form{
+    max-width:480px; margin:0 auto 48px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+  .wishwall-form input, .wishwall-form textarea{
+    width:100%; background:rgba(245,241,230,0.06);
+    border:1px solid rgba(245,241,230,0.2); border-radius:12px;
+    padding:13px 16px; color:var(--cream);
+    font-family:'Inter',sans-serif; font-size:0.95rem;
+    resize:vertical;
+  }
+  .wishwall-form input::placeholder, .wishwall-form textarea::placeholder{ color:rgba(245,241,230,0.4); }
+  .wishwall-form input:focus, .wishwall-form textarea:focus{
+    outline:none; border-color:var(--aurora-b);
+    box-shadow:0 0 0 3px rgba(76,201,240,0.15);
+  }
+  .wishwall-submit{
+    align-self:center;
+    background:linear-gradient(90deg, var(--aurora-a), var(--aurora-b));
+    border:none; color:#06121f; font-weight:600;
+    padding:12px 30px; border-radius:999px;
+    font-family:'Inter',sans-serif; font-size:0.9rem;
+    cursor:pointer; transition:transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .wishwall-submit:hover{ transform:translateY(-1px); box-shadow:0 8px 24px rgba(76,201,240,0.3); }
+  .wishwall-submit:disabled{ opacity:0.5; cursor:default; transform:none; box-shadow:none; }
+  .wishwall-note{ text-align:center; font-size:0.78rem; color:var(--cream-dim); margin-top:-4px; }
+  .wishwall-list{
+    max-width:640px; margin:0 auto; display:flex; flex-direction:column; gap:14px;
+  }
+  .wish-card{
+    background:rgba(245,241,230,0.05);
+    border:1px solid rgba(245,241,230,0.12);
+    border-radius:16px; padding:18px 22px;
+    opacity:0; transform:translateY(10px);
+    animation:rise 0.6s ease forwards;
+  }
+  .wish-card .wish-text{ font-size:0.96rem; line-height:1.55; color:var(--cream); }
+  .wish-card .wish-from{
+    margin-top:8px; font-size:0.8rem; color:var(--aurora-b);
+    font-family:'Fraunces',serif; font-style:italic;
+  }
+  .wishwall-empty{ text-align:center; color:var(--cream-dim); font-size:0.9rem; }
+
+  /* ---------- FOOTER ---------- */
+  footer{ padding:56px 24px 44px; text-align:center; color:var(--cream-dim); font-size:0.85rem; }
+  footer .hearts{color:var(--aurora-b); margin:0 4px;}
+
+  @media (max-width:640px){
+    .card{width:180px; height:250px;}
+    .gallery-wrap{height:340px;}
+    section{padding:88px 20px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="aurora-layer" id="auroraLayer"></div>
+<div id="starfield"></div>
+<canvas id="confetti-canvas"></canvas>
+
+<nav>
+  <div class="brand">Kashaf's Day</div>
+  <button class="music-btn" id="musicBtn" aria-pressed="false">
+    <span class="music-dot" id="musicDot"></span>
+    <span id="musicLabel">Play tune</span>
+  </button>
+</nav>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="hero">
+  <div class="eyebrow">a little celebration, just for you</div>
+  <h1 class="headline">Happy Birthday,<br><span class="accent">Kashaf</span></h1>
+  <p class="sub">Like lanterns drifting into a northern sky — here's to a year that lifts you higher. Scroll down.</p>
+  <div class="scroll-cue"><span>scroll</span><div class="chevron"></div></div>
+</section>
+
+<!-- ================= GALLERY ================= -->
+<section id="gallery">
+  <div class="section-head">
+    <h2>Moments worth freezing in time</h2>
+    <p>A little gallery, waiting to be filled with Kashaf's best memories.</p>
+  </div>
+  <div class="gallery-wrap">
+    <div class="gallery-track" id="track"></div>
+  </div>
+  <div class="gallery-nav">
+    <button class="gnav-btn" id="prevBtn" aria-label="Previous photo">‹</button>
+    <button class="gnav-btn" id="nextBtn" aria-label="Next photo">›</button>
+  </div>
+  <p class="gallery-hint">Drag, swipe, or use the arrows to look around</p>
+</section>
+
+<!-- ================= ADVENTURE ================= -->
+<!-- ================= WISH / LANTERN ================= -->
+<section class="wish-section">
+  <div class="section-head">
+    <h2>Send up a wish</h2>
+    <p>Release the lantern and watch it disappear into the aurora.</p>
+  </div>
+  <div class="lantern-area">
+    <div class="lead-lantern" id="leadLantern">
+      <div class="rim-top"></div><div class="rim-bottom"></div>
+    </div>
+    <button class="release-btn" id="releaseBtn">Release the lanterns</button>
+    <p class="wish-message" id="wishMsg">
+      Kashaf, may this year hand you exactly what you've been hoping for —
+      and a few wonderful things you haven't even thought to wish for yet.
+      Here's to more light, more good days, and more moments worth
+      celebrating just like this one.
+      <span class="sign">With so much love, always.</span>
+    </p>
+  </div>
+</section>
+
+<section id="adventure">
+  <div class="section-head">
+    <h2>Where to next?</h2>
+    <p>If you could chase the sky anywhere this year, here's where we'd point you.</p>
+  </div>
+  <p class="adventure-prompt">So, Kashaf — where would you want to go on an adventure?</p>
+  <div class="adventure-grid">
+    <div class="adv-card" data-video="aurora.mp4">
+      <img class="adv-poster" src="aurora-poster.jpg" alt="Aurora over Norway" loading="lazy">
+      <video muted loop playsinline preload="none" poster="aurora-poster.jpg"></video>
+      <div class="adv-label">
+        <div class="adv-place">Northern lights</div>
+        <div class="adv-country">Norway</div>
+      </div>
+    </div>
+    <div class="adv-card" data-video="istanbul.mp4">
+      <img class="adv-poster" src="istanbul-poster.jpg" alt="Istanbul nightlife" loading="lazy">
+      <video muted loop playsinline preload="none" poster="istanbul-poster.jpg"></video>
+      <div class="adv-label">
+        <div class="adv-place">City lights at night</div>
+        <div class="adv-country">Istanbul, Turkey</div>
+      </div>
+    </div>
+    <div class="adv-card" data-video="faroe.mp4">
+      <img class="adv-poster" src="faroe-poster.jpg" alt="Lake above the ocean, Faroe Islands" loading="lazy">
+      <video muted loop playsinline preload="none" poster="faroe-poster.jpg"></video>
+      <div class="adv-label">
+        <div class="adv-place">The lake above the ocean</div>
+        <div class="adv-country">Faroe Islands</div>
+      </div>
+    </div>
+    <div class="adv-card" data-video="sakura.mp4">
+      <img class="adv-poster" src="sakura-poster.jpg" alt="Boat drifting through cherry blossom petals, Japan" loading="lazy">
+      <video muted loop playsinline preload="none" poster="sakura-poster.jpg"></video>
+      <div class="adv-label">
+        <div class="adv-place">Drifting through the petals</div>
+        <div class="adv-country">Japan</div>
+      </div>
+    </div>
+    <div class="adv-card" data-video="tower.mp4">
+      <img class="adv-poster" src="tower-poster.jpg" alt="The Tangled Tower in the forest" loading="lazy">
+      <video muted loop playsinline preload="none" poster="tower-poster.jpg"></video>
+      <div class="adv-label">
+        <div class="adv-place">Where Rapunzel let her hair down</div>
+        <div class="adv-country">The Tangled Tower</div>
+      </div>
+    </div>
+    <div class="adv-card" data-video="hobbit.mp4">
+      <img class="adv-poster" src="hobbit-poster.jpg" alt="A hobbit hole by the river, the Shire" loading="lazy">
+      <video muted loop playsinline preload="none" poster="hobbit-poster.jpg"></video>
+      <div class="adv-label">
+        <div class="adv-place">A little round door in a hill</div>
+        <div class="adv-country">The Shire</div>
+      </div>
+    </div>
+    <div class="adv-card" data-video="horses.mp4">
+      <img class="adv-poster" src="horses-poster.jpg" alt="Wild horses running through a green valley" loading="lazy">
+      <video muted loop playsinline preload="none" poster="horses-poster.jpg"></video>
+      <div class="adv-label">
+        <div class="adv-place">Running wild and free</div>
+        <div class="adv-country">Somewhere untamed</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WISH WALL ================= -->
+<section id="wishwall">
+  <div class="section-head">
+    <h2>Leave Kashaf a wish</h2>
+    <p>Add your own birthday message to the wall below.</p>
+  </div>
+  <form class="wishwall-form" id="wishwallForm">
+    <input type="text" id="wishwallName" placeholder="Your name" maxlength="40" required>
+    <textarea id="wishwallText" placeholder="Write your birthday wish for Kashaf..." rows="3" maxlength="300" required></textarea>
+    <button type="submit" class="wishwall-submit">Add my wish</button>
+  </form>
+  <p class="wishwall-note">Wishes are saved on this device/browser only.</p>
+  <div class="wishwall-list" id="wishwallList"></div>
+</section>
+
+<footer>
+  Made with <span class="hearts">♥</span> for Kashaf's birthday
+</footer>
+
+<script>
+/* ============ STARFIELD ============ */
+const starfield = document.getElementById('starfield');
+for(let i=0;i<120;i++){
+  const s = document.createElement('div');
+  s.className='star';
+  const size = Math.random()*2 + 0.6;
+  s.style.width = size+'px';
+  s.style.height = size+'px';
+  s.style.left = Math.random()*100+'%';
+  s.style.top = Math.random()*100+'%';
+  s.style.animationDuration = (2 + Math.random()*4)+'s';
+  s.style.animationDelay = (Math.random()*4)+'s';
+  starfield.appendChild(s);
+}
+
+/* ============ CONFETTI (canvas particle burst) ============ */
+const canvas = document.getElementById('confetti-canvas');
+const ctx = canvas.getContext('2d');
+function resizeCanvas(){ canvas.width = innerWidth; canvas.height = innerHeight; }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+let particles = [];
+const confettiColors = ['#3ddc97','#4cc9f0','#7b61ff','#ffb454','#f5f1e6'];
+function burstConfetti(x, y, count=90){
+  for(let i=0;i<count;i++){
+    particles.push({
+      x, y,
+      vx:(Math.random()-0.5)*11,
+      vy:(Math.random()*-11)-3,
+      size:Math.random()*7+4,
+      color:confettiColors[Math.floor(Math.random()*confettiColors.length)],
+      rot:Math.random()*360,
+      vr:(Math.random()-0.5)*14,
+      life:0, maxLife:110+Math.random()*40
+    });
+  }
+}
+function tickConfetti(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    p.vy += 0.22;
+    p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life++;
+    ctx.save();
+    ctx.translate(p.x,p.y);
+    ctx.rotate(p.rot*Math.PI/180);
+    ctx.globalAlpha = Math.max(0, 1 - p.life/p.maxLife);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.6);
+    ctx.restore();
+  });
+  particles = particles.filter(p=>p.life < p.maxLife);
+  requestAnimationFrame(tickConfetti);
+}
+tickConfetti();
+window.addEventListener('load', ()=> burstConfetti(innerWidth/2, innerHeight*0.35, 140));
+
+/* Aurora background is now the real reference photo (aurora-bg.png), set via CSS on .aurora-layer */
+
+/* ============ 3D PHOTO GALLERY (coverflow) ============ */
+/*
+  TO ADD REAL PHOTOS:
+  Replace the gradient pairs below with actual images, e.g.:
+    card.style.background = "url('photo1.jpg') center/cover";
+  and remove the .cap / .icon placeholder text if you like.
+*/
+const photoData = [
+  {a:'#4cc9f0', b:'#1f6fa8', label:'Photo 1', icon:'📷'},
+  {a:'#ffb454', b:'#c9752c', label:'Photo 2', icon:'🏮'},
+  {a:'#3ddc97', b:'#1f9e6b', label:'Photo 3', icon:'✨'},
+  {a:'#7b61ff', b:'#4b39c9', label:'Photo 4', icon:'🌌'},
+  {a:'#ff9d3d', b:'#c9601f', label:'Photo 5', icon:'💛'},
+];
+
+const track = document.getElementById('track');
+photoData.forEach((p)=>{
+  const card = document.createElement('div');
+  card.className='card';
+  card.style.setProperty('--card-a', p.a);
+  card.style.setProperty('--card-b', p.b);
+  card.innerHTML = `<span class="icon">${p.icon}</span><span class="cap">${p.label}</span>`;
+  track.appendChild(card);
+});
+const cards = Array.from(track.children);
+let activeIndex = 0;
+
+function layoutGallery(){
+  const n = cards.length;
+  cards.forEach((card, i)=>{
+    let offset = i - activeIndex;
+    if(offset > n/2) offset -= n;
+    if(offset < -n/2) offset += n;
+    const abs = Math.abs(offset);
+    const x = offset * 150;
+    const rotY = offset * -35;
+    const z = -abs * 160;
+    const scale = abs === 0 ? 1 : 0.82;
+    card.style.transform = `translateX(${x}px) translateZ(${z}px) rotateY(${rotY}deg) scale(${scale})`;
+    card.style.zIndex = 100 - abs;
+    card.style.opacity = abs > 2 ? 0 : 1 - abs*0.18;
+    card.style.filter = abs === 0 ? 'brightness(1)' : 'brightness(0.65)';
+  });
+}
+layoutGallery();
+
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  activeIndex = (activeIndex + 1) % cards.length;
+  layoutGallery();
+});
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  activeIndex = (activeIndex - 1 + cards.length) % cards.length;
+  layoutGallery();
+});
+
+let dragStartX = null;
+const wrap = document.querySelector('.gallery-wrap');
+wrap.addEventListener('pointerdown', e=>{ dragStartX = e.clientX; });
+window.addEventListener('pointerup', e=>{
+  if(dragStartX === null) return;
+  const diff = e.clientX - dragStartX;
+  if(diff > 40){ activeIndex = (activeIndex - 1 + cards.length) % cards.length; layoutGallery(); }
+  else if(diff < -40){ activeIndex = (activeIndex + 1) % cards.length; layoutGallery(); }
+  dragStartX = null;
+});
+
+/* ============ ADVENTURE VIDEOS (lazy load + play only when visible) ============ */
+const advCards = document.querySelectorAll('.adv-card');
+if('IntersectionObserver' in window){
+  const advObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const card = entry.target;
+      const video = card.querySelector('video');
+      if(entry.isIntersecting){
+        if(!video.src){ video.src = card.dataset.video; }
+        video.play().then(()=> card.classList.add('playing')).catch(()=>{});
+      } else {
+        video.pause();
+        card.classList.remove('playing');
+      }
+    });
+  }, {threshold:0.4});
+  advCards.forEach(card=> advObserver.observe(card));
+} else {
+  // fallback: just show posters, skip autoplay video
+}
+
+/* ============ WISH WALL (localStorage, per-device) ============ */
+const wishwallForm = document.getElementById('wishwallForm');
+const wishwallList = document.getElementById('wishwallList');
+const WISHWALL_KEY = 'kashaf-wishwall';
+
+function loadWishes(){
+  try{
+    return JSON.parse(localStorage.getItem(WISHWALL_KEY) || '[]');
+  }catch(e){ return []; }
+}
+function saveWishes(wishes){
+  try{ localStorage.setItem(WISHWALL_KEY, JSON.stringify(wishes)); }catch(e){}
+}
+function renderWishes(){
+  const wishes = loadWishes();
+  if(wishes.length === 0){
+    wishwallList.innerHTML = '<p class="wishwall-empty">Be the first to leave a wish 🏮</p>';
+    return;
+  }
+  wishwallList.innerHTML = '';
+  wishes.slice().reverse().forEach(w=>{
+    const card = document.createElement('div');
+    card.className = 'wish-card';
+    const textEl = document.createElement('div');
+    textEl.className = 'wish-text';
+    textEl.textContent = w.text;
+    const fromEl = document.createElement('div');
+    fromEl.className = 'wish-from';
+    fromEl.textContent = '— ' + w.name;
+    card.appendChild(textEl);
+    card.appendChild(fromEl);
+    wishwallList.appendChild(card);
+  });
+}
+renderWishes();
+
+wishwallForm.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const nameInput = document.getElementById('wishwallName');
+  const textInput = document.getElementById('wishwallText');
+  const name = nameInput.value.trim();
+  const text = textInput.value.trim();
+  if(!name || !text) return;
+  const wishes = loadWishes();
+  wishes.push({name, text});
+  saveWishes(wishes);
+  renderWishes();
+  nameInput.value = '';
+  textInput.value = '';
+  burstConfetti(innerWidth/2, innerHeight*0.6, 50);
+});
+
+/* ============ RELEASE THE LANTERN ============ */
+const releaseBtn = document.getElementById('releaseBtn');
+const leadLantern = document.getElementById('leadLantern');
+const wishMsg = document.getElementById('wishMsg');
+
+function releaseLanternSwarm(count){
+  // shuffle spawn order so the evenly-spaced slots don't fill left-to-right
+  const order = Array.from({length:count}, (_, i)=>i);
+  for(let i=order.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [order[i],order[j]]=[order[j],order[i]];
+  }
+  const margin = 40; // px, keep lanterns off the very edges
+  const usableWidth = Math.max(innerWidth - margin*2, 300);
+  const slotWidthPx = usableWidth / count;
+  order.forEach((slot, i)=>{
+      const l = document.createElement('div');
+      l.className = 'swarm-lantern';
+      l.innerHTML = '<div class="rim-top"></div><div class="body"></div><div class="rim-bottom"></div>';
+      // evenly spaced slots in real pixels, with mild jitter so it doesn't look like a grid,
+      // but never enough jitter to push a lantern into its neighbour's slot
+      const jitter = (Math.random()*0.3 - 0.15) * slotWidthPx;
+      const scale = 0.65 + Math.random()*0.5;
+      const centerXpx = margin + slot * slotWidthPx + slotWidthPx/2 + jitter;
+      const startXpx = centerXpx - (44*scale)/2; // left-edge, so the scaled lantern is centered on the slot
+      l.style.left = startXpx + 'px';
+      l.style.setProperty('--lanternScale', scale);
+      l.style.setProperty('--driftA', (Math.random()*60 - 30) + 'px');
+      l.style.setProperty('--driftB', (Math.random()*60 - 30) + 'px');
+      l.style.setProperty('--driftC', (Math.random()*60 - 30) + 'px');
+      l.style.setProperty('--driftD', (Math.random()*60 - 30) + 'px');
+      const dur = 20 + Math.random()*12; // fast, visible rise
+      l.style.animationDuration = dur + 's';
+      document.body.appendChild(l);
+      if(i % 6 === 0){ burstConfetti(startXpx, innerHeight - 40, 8); }
+      l.addEventListener('animationend', ()=> l.remove());
+  });
+}
+
+releaseBtn.addEventListener('click', ()=>{
+  if(releaseBtn.disabled) return;
+  leadLantern.classList.add('launched');
+  releaseLanternSwarm(36);
+  wishMsg.classList.add('show');
+  releaseBtn.disabled = true;
+  releaseBtn.textContent = 'Wishes sent 🏮';
+  const rect = leadLantern.getBoundingClientRect();
+  burstConfetti(rect.left + rect.width/2, rect.top, 60);
+});
+
+/* ============ PROCEDURAL BIRTHDAY TUNE (Web Audio, no external file) ============ */
+let audioCtx = null;
+let musicPlaying = false;
+let musicTimer = null;
+const musicBtn = document.getElementById('musicBtn');
+const musicDot = document.getElementById('musicDot');
+const musicLabel = document.getElementById('musicLabel');
+
+const melody = [
+  {note:523.25, dur:0.35},{note:659.25, dur:0.35},{note:783.99, dur:0.35},
+  {note:659.25, dur:0.35},{note:880.00, dur:0.5},{note:783.99, dur:0.35},
+  {note:659.25, dur:0.35},{note:523.25, dur:0.35},{note:587.33, dur:0.35},
+  {note:659.25, dur:0.7},
+];
+let noteIndex = 0;
+
+function playNote(freq, duration, startTime){
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(freq, startTime);
+  gain.gain.setValueAtTime(0, startTime);
+  gain.gain.linearRampToValueAtTime(0.18, startTime + 0.03);
+  gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(startTime);
+  osc.stop(startTime + duration + 0.05);
+}
+
+function scheduleLoop(){
+  if(!musicPlaying) return;
+  const step = melody[noteIndex % melody.length];
+  playNote(step.note, step.dur, audioCtx.currentTime);
+  noteIndex++;
+  musicTimer = setTimeout(scheduleLoop, step.dur*1000 * 0.92);
+}
+
+musicBtn.addEventListener('click', ()=>{
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  musicPlaying = !musicPlaying;
+  musicBtn.setAttribute('aria-pressed', musicPlaying);
+  if(musicPlaying){
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    musicLabel.textContent = 'Pause tune';
+    musicDot.classList.add('playing');
+    scheduleLoop();
+  } else {
+    musicLabel.textContent = 'Play tune';
+    musicDot.classList.remove('playing');
+    clearTimeout(musicTimer);
+  }
+});
+</script>
+
+</body>
+</html>
