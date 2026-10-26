@@ -269,10 +269,14 @@
   }
   .adv-card video, .adv-card .adv-poster{
     position:absolute; inset:0; width:100%; height:100%;
-    object-fit:cover; display:block;
+    object-fit:cover; object-position:center center; display:block;
   }
+  /* taller crop for subjects that need more vertical room in frame (e.g. the tower, the hobbit house) */
+  .adv-card.tall-crop{ aspect-ratio:3/5; }
+  .adv-card.tall-crop video, .adv-card.tall-crop .adv-poster{ object-position:center top; }
   .adv-card .adv-poster{ transition:opacity 0.5s ease; }
   .adv-card.playing .adv-poster{ opacity:0; }
+  .adv-card.top-crop video, .adv-card.top-crop .adv-poster{ object-position:center top; }
   .adv-card::after{
     content:''; position:absolute; inset:0;
     background:linear-gradient(180deg, rgba(5,11,22,0) 40%, rgba(5,11,22,0.88) 100%);
@@ -296,6 +300,7 @@
   @media (max-width:760px){
     .adventure-grid{ grid-template-columns:1fr; gap:16px; }
     .adv-card{ aspect-ratio:16/10; }
+    .adv-card.tall-crop{ aspect-ratio:3/4; }
   }
 
   /* ---------- WISH LANTERN SECTION ---------- */
@@ -478,7 +483,7 @@
         <div class="adv-country">Japan</div>
       </div>
     </div>
-    <div class="adv-card" data-video="tower.mp4">
+    <div class="adv-card tall-crop" data-video="tower.mp4">
       <img class="adv-poster" src="tower-poster.jpg" alt="The Tangled Tower in the forest" loading="lazy">
       <video muted loop playsinline preload="none" poster="tower-poster.jpg"></video>
       <div class="adv-label">
@@ -486,7 +491,7 @@
         <div class="adv-country">The Tangled Tower</div>
       </div>
     </div>
-    <div class="adv-card" data-video="hobbit.mp4">
+    <div class="adv-card top-crop" data-video="hobbit.mp4">
       <img class="adv-poster" src="hobbit-poster.jpg" alt="A hobbit hole by the river, the Shire" loading="lazy">
       <video muted loop playsinline preload="none" poster="hobbit-poster.jpg"></video>
       <div class="adv-label">
