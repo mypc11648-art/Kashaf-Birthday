@@ -223,7 +223,7 @@
 
   /* ---------- GALLERY (3D coverflow) ---------- */
   .gallery-wrap{
-    position:relative; height:420px;
+    position:relative; height:460px;
     display:flex; align-items:center; justify-content:center;
     perspective:1400px; user-select:none;
   }
@@ -233,16 +233,26 @@
     display:flex; align-items:center; justify-content:center;
   }
   .card{
-    position:absolute; width:230px; height:300px; border-radius:18px;
+    position:absolute; width:260px; height:380px; border-radius:18px;
     display:flex; align-items:flex-end; padding:20px;
     background:linear-gradient(150deg, var(--card-a), var(--card-b));
     box-shadow:0 30px 60px rgba(0,0,0,0.5);
     transition:transform 0.6s cubic-bezier(.22,.9,.32,1), opacity 0.6s ease, filter 0.6s ease;
     cursor:grab; border:1px solid rgba(255,255,255,0.08);
+    overflow:hidden;
   }
   .card:active{cursor:grabbing;}
   .card .cap{ font-family:'Fraunces',serif; font-style:italic; font-weight:500; color:rgba(255,255,255,0.92); font-size:1.05rem; }
   .card .icon{ position:absolute; top:20px; left:20px; font-size:1.4rem; opacity:0.85; }
+  .card.note-card{ align-items:center; justify-content:center; text-align:center; padding:26px; }
+  .card.note-card .note-text{
+    font-family:'Fraunces',serif; font-style:italic; font-weight:500;
+    font-size:0.84rem; line-height:1.45; color:rgba(255,255,255,0.95); white-space:pre-line;
+  }
+  .card.note-card .note-sign{
+    display:block; margin-top:14px; font-size:0.74rem; font-style:normal;
+    color:rgba(255,255,255,0.75); font-family:'Inter',sans-serif;
+  }
   .gallery-nav{ margin-top:36px; display:flex; justify-content:center; gap:14px; }
   .gnav-btn{
     width:42px; height:42px; border-radius:50%;
@@ -277,6 +287,10 @@
   .adv-card .adv-poster{ transition:opacity 0.5s ease; }
   .adv-card.playing .adv-poster{ opacity:0; }
   .adv-card.top-crop video, .adv-card.top-crop .adv-poster{ object-position:center top; }
+  /* full-crop: match the card to the clip's native ~9:16 shape so nothing gets cut off */
+  .adv-card.full-crop{ aspect-ratio:9/16; }
+  .adv-card.full-crop video, .adv-card.full-crop .adv-poster{ object-position:center center; }
+  @media (max-width:760px){ .adv-card.full-crop{ aspect-ratio:9/16; } }
   .adv-card::after{
     content:''; position:absolute; inset:0;
     background:linear-gradient(180deg, rgba(5,11,22,0) 40%, rgba(5,11,22,0.88) 100%);
@@ -378,8 +392,8 @@
   footer .hearts{color:var(--aurora-b); margin:0 4px;}
 
   @media (max-width:640px){
-    .card{width:180px; height:250px;}
-    .gallery-wrap{height:340px;}
+    .card{width:230px; height:340px;}
+    .gallery-wrap{height:400px;}
     section{padding:88px 20px;}
   }
 </style>
@@ -409,17 +423,17 @@
 <!-- ================= GALLERY ================= -->
 <section id="gallery">
   <div class="section-head">
-    <h2>Moments worth freezing in time</h2>
-    <p>A little gallery, waiting to be filled with Kashaf's best memories.</p>
+    <h2>A few words instead</h2>
+    <p>No photos here — just a few things I wanted to say.</p>
   </div>
   <div class="gallery-wrap">
     <div class="gallery-track" id="track"></div>
   </div>
   <div class="gallery-nav">
-    <button class="gnav-btn" id="prevBtn" aria-label="Previous photo">‹</button>
-    <button class="gnav-btn" id="nextBtn" aria-label="Next photo">›</button>
+    <button class="gnav-btn" id="prevBtn" aria-label="Previous note">‹</button>
+    <button class="gnav-btn" id="nextBtn" aria-label="Next note">›</button>
   </div>
-  <p class="gallery-hint">Drag, swipe, or use the arrows to look around</p>
+  <p class="gallery-hint">Drag, swipe, or use the arrows to read them all</p>
 </section>
 
 <!-- ================= ADVENTURE ================= -->
@@ -491,7 +505,7 @@
         <div class="adv-country">The Tangled Tower</div>
       </div>
     </div>
-    <div class="adv-card top-crop" data-video="hobbit.mp4">
+    <div class="adv-card full-crop" data-video="hobbit.mp4">
       <img class="adv-poster" src="hobbit-poster.jpg" alt="A hobbit hole by the river, the Shire" loading="lazy">
       <video muted loop playsinline preload="none" poster="hobbit-poster.jpg"></video>
       <div class="adv-label">
@@ -589,28 +603,31 @@ window.addEventListener('load', ()=> burstConfetti(innerWidth/2, innerHeight*0.3
 
 /* Aurora background is now the real reference photo (aurora-bg.png), set via CSS on .aurora-layer */
 
-/* ============ 3D PHOTO GALLERY (coverflow) ============ */
-/*
-  TO ADD REAL PHOTOS:
-  Replace the gradient pairs below with actual images, e.g.:
-    card.style.background = "url('photo1.jpg') center/cover";
-  and remove the .cap / .icon placeholder text if you like.
-*/
-const photoData = [
-  {a:'#4cc9f0', b:'#1f6fa8', label:'Photo 1', icon:'📷'},
-  {a:'#ffb454', b:'#c9752c', label:'Photo 2', icon:'🏮'},
-  {a:'#3ddc97', b:'#1f9e6b', label:'Photo 3', icon:'✨'},
-  {a:'#7b61ff', b:'#4b39c9', label:'Photo 4', icon:'🌌'},
-  {a:'#ff9d3d', b:'#c9601f', label:'Photo 5', icon:'💛'},
+/* ============ 3D NOTE GALLERY (coverflow) ============ */
+const noteData = [
+  {
+    a:'#4cc9f0', b:'#1f6fa8',
+    note:`Kashaf, I hope this year brings you more peace than you've ever had, and the freedom to build a life that's entirely your own.
+Chase whatever calls to you — a new place, a new path, a new beginning — without ever needing anyone's permission.
+Go wander. Go breathe. Go live exactly as you want to.
+Happy birthday.`,
+    sign:'— Moiz'
+  },
+  {a:'#ffb454', b:'#c9752c', note:'', sign:''},
+  {a:'#3ddc97', b:'#1f9e6b', note:'', sign:''},
 ];
 
 const track = document.getElementById('track');
-photoData.forEach((p)=>{
+noteData.forEach((p)=>{
   const card = document.createElement('div');
-  card.className='card';
+  card.className='card note-card';
   card.style.setProperty('--card-a', p.a);
   card.style.setProperty('--card-b', p.b);
-  card.innerHTML = `<span class="icon">${p.icon}</span><span class="cap">${p.label}</span>`;
+  if(p.note){
+    card.innerHTML = `<span class="note-text">${p.note}<span class="note-sign">${p.sign}</span></span>`;
+  } else {
+    card.innerHTML = `<span class="note-text" style="opacity:0.5">More to come…</span>`;
+  }
   track.appendChild(card);
 });
 const cards = Array.from(track.children);
