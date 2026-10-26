@@ -804,56 +804,29 @@ releaseBtn.addEventListener('click', ()=>{
   burstConfetti(rect.left + rect.width/2, rect.top, 60);
 });
 
-/* ============ PROCEDURAL BIRTHDAY TUNE (Web Audio, no external file) ============ */
-let audioCtx = null;
+/* ============ BACKGROUND TUNE (audio file, loads only when played) ============ */
 let musicPlaying = false;
-let musicTimer = null;
+const tune = new Audio();
+tune.src = 'tune.mp3';
+tune.preload = 'none';
+tune.loop = true;
+tune.volume = 0.7;
 const musicBtn = document.getElementById('musicBtn');
 const musicDot = document.getElementById('musicDot');
 const musicLabel = document.getElementById('musicLabel');
 
-const melody = [
-  {note:523.25, dur:0.35},{note:659.25, dur:0.35},{note:783.99, dur:0.35},
-  {note:659.25, dur:0.35},{note:880.00, dur:0.5},{note:783.99, dur:0.35},
-  {note:659.25, dur:0.35},{note:523.25, dur:0.35},{note:587.33, dur:0.35},
-  {note:659.25, dur:0.7},
-];
-let noteIndex = 0;
-
-function playNote(freq, duration, startTime){
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = 'triangle';
-  osc.frequency.setValueAtTime(freq, startTime);
-  gain.gain.setValueAtTime(0, startTime);
-  gain.gain.linearRampToValueAtTime(0.18, startTime + 0.03);
-  gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-  osc.connect(gain).connect(audioCtx.destination);
-  osc.start(startTime);
-  osc.stop(startTime + duration + 0.05);
-}
-
-function scheduleLoop(){
-  if(!musicPlaying) return;
-  const step = melody[noteIndex % melody.length];
-  playNote(step.note, step.dur, audioCtx.currentTime);
-  noteIndex++;
-  musicTimer = setTimeout(scheduleLoop, step.dur*1000 * 0.92);
-}
-
 musicBtn.addEventListener('click', ()=>{
-  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   musicPlaying = !musicPlaying;
   musicBtn.setAttribute('aria-pressed', musicPlaying);
   if(musicPlaying){
-    if(audioCtx.state === 'suspended') audioCtx.resume();
-    musicLabel.textContent = 'Pause tune';
-    musicDot.classList.add('playing');
-    scheduleLoop();
+    tune.play().then(()=>{
+      musicLabel.textContent = 'Pause tune';
+      musicDot.classList.add('playing');
+    }).catch(()=>{ musicPlaying = false; musicBtn.setAttribute('aria-pressed', false); });
   } else {
+    tune.pause();
     musicLabel.textContent = 'Play tune';
     musicDot.classList.remove('playing');
-    clearTimeout(musicTimer);
   }
 });
 </script>
